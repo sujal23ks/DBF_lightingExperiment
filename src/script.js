@@ -315,6 +315,23 @@ window.addEventListener('resize', () => {
 })
 
 /**
+ * Raycaster
+ */
+ const raycaster = new THREE.Raycaster()
+
+ /**
+  * Mouse
+  */
+const mouse = new THREE.Vector2()
+
+window.addEventListener('mousemove', (event) => {
+    mouse.x = event.clientX / sizes.width * 2 - 1
+    mouse.y = -(event.clientY / sizes.height) * 2 + 1
+
+})
+
+
+/**
  * Camera
  */
 // Base camera
@@ -341,27 +358,6 @@ renderer.shadowMap.enabled = true
     //renderer.physicallyCorrectLights = true
 
 /**
- * Raycaster
- */
-const raycaster = new THREE.Raycaster()
-    /**
-     * Mouse
-     */
-const mouse = new THREE.Vector2()
-
-window.addEventListener('mousemove', (event) => {
-    mouse.x = event.clientX / sizes.width * 2 - 1
-    mouse.y = -(event.clientY / sizes.height) * 2 + 1
-
-    // console.log(mouse)
-})
-
-window.addEventListener('click', (event) => {
-
-    // console.log(mouse)
-})
-
-/**
  * Animate
  */
 const clock = new THREE.Clock()
@@ -379,9 +375,18 @@ const tick = () => {
     torus.rotation.x = 0.15 * elapsedTime
 
     raycaster.setFromCamera(mouse, camera)
-    const objectsToTest = [sphere, cube, torus]
+    const objectsToTest = [wall_1]
+
     const intersects = raycaster.intersectObjects(objectsToTest)
 
+for(const object of objectsToTest)
+{
+    object.material.color.set('#cccccc')
+}
+for(const intersect of intersects)
+{
+    intersect.object.material.color.set('#0000ff')
+}
     //console.log(intersects)
 
 
