@@ -5,6 +5,8 @@ import * as dat from 'dat.gui'
 import { RectAreaLightHelper } from 'three/examples/jsm/helpers/RectAreaLightHelper.js'
 import { BoxGeometry, DirectionalLightShadow } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { CSG } from 'three-csg-ts'
+
 
 /**
  * Base
@@ -16,19 +18,17 @@ const gui = new dat.GUI()
      */
 const gltfLoader = new GLTFLoader()
 
+// gltfLoader.load(
+//     '/couch.glb',
+//     (gltf) => {
+//         console.log('Loaded GLTF is:: ', gltf)
 
-
-
-gltfLoader.load(
-    '/ds_bridge.glb',
-    (gltf) => {
-        console.log('Loaded GLTF is:: ', gltf)
-        for (const child of gltf.scene.children) {
-            gltf.scene.position.set(0.75, 0.75, 0.75)
-            scene.add(child)
-        }
-    }
-)
+//         for (const child of gltf.scene.children) {
+//             gltf.scene.position.set(0.75, 0.75, 0.75)
+//             scene.add(child)
+//         }
+//     }
+// )
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
@@ -64,7 +64,7 @@ ambientLight.intensity = 0.5
 scene.add(ambientLight)
 
 // Directional light
-const directionalLight = new THREE.DirectionalLight(0xff9900, 0.3)
+const directionalLight = new THREE.DirectionalLight(0xffd966, 0.4)
     //0xff9900
     //gui.add(directionalLight, 'intensity').min(0).max(1).step(0.001)
 directionalLight.position.set(9, 9.25, 0)
@@ -151,8 +151,8 @@ window.requestAnimationFrame(() => {
     spotLightHelper.update()
 })
 
-const rectAreaLightHelper = new RectAreaLightHelper(rectAreaLight)
-scene.add(rectAreaLightHelper)
+// const rectAreaLightHelper = new RectAreaLightHelper(rectAreaLight)
+// scene.add(rectAreaLightHelper)
 
 /**
  * Textures
@@ -179,7 +179,18 @@ const colorTexture = textureLoader.load(
 )
 
 const colorTexture_wall = textureLoader.load(
-        '/textures/wall_brick.jpg',
+    '/textures/wall_brick.jpg',
+)
+
+const wall_col = textureLoader.load(
+    '/textures/wall.jpg'
+)
+const wall_colao = textureLoader.load(
+    '/textures/wallAmbientOcclusion3.jpg'
+)
+
+const wall_colao2 = textureLoader.load(
+        '/textures/wallAmbientOcclusion.jpg'
     )
     /**
      * Objects
@@ -188,13 +199,24 @@ const colorTexture_wall = textureLoader.load(
 
 const material_Floor = new THREE.MeshStandardMaterial({ map: colorTexture })
 material_Floor.roughness = 0.5
+material_Floor.aoMap = wall_colao2;
 
 const material_wall = new THREE.MeshStandardMaterial({ map: colorTexture_wall })
 material_Floor.roughness = 0.5
 
 const material = new THREE.MeshStandardMaterial()
-material.color.set(0xcccccc)
+material.map = wall_col;
+material.aoMap = wall_colao;
+//material.color.set(0xcccccc)
 material.roughness = 0.4
+
+
+const material_glass = new THREE.MeshStandardMaterial()
+material_glass.color.set(0xacf9e5)
+material_glass.roughness = 0.4
+material_glass.transparent = true
+material_glass.opacity = 0.3
+
 
 // //TO CREATE Cartoonish Style
 // const material = new THREE.MeshToonMaterial()
@@ -205,6 +227,17 @@ const sphere = new THREE.Mesh(
     new THREE.SphereGeometry(0.5, 32, 32),
     material
 )
+
+const cube_2 = new THREE.Mesh(
+    new THREE.BoxGeometry(5, 0.75, 0.75),
+    material
+)
+
+const result = CSG.subtract(sphere, cube_2)
+
+result.position.x = -1
+scene.add(result)
+
 sphere.position.x = -1.5
 
 const cube = new THREE.Mesh(
@@ -222,13 +255,32 @@ const wall_3 = new THREE.Mesh(
     material
 )
 
-const wall_5 = new THREE.Mesh(
+const wall_full = new THREE.Mesh(
     new THREE.BoxGeometry(.23, 3, 10),
     material
 )
+
+const wall_window = new THREE.Mesh(
+    new THREE.BoxGeometry(1, 2.2, 4),
+    material
+)
+const wall_window_tex = new THREE.Mesh(
+    new THREE.BoxGeometry(.01, 2.2, 4),
+    material_glass
+)
+
+const wall_5 = CSG.subtract(wall_full, wall_window)
+
 wall_5.position.y = 0.85;
 wall_5.position.z = -2.5;
 wall_5.position.x = 7.4;
+
+wall_window_tex.position.y = 0.85;
+wall_window_tex.position.z = -2.5;
+wall_window_tex.position.x = 7.4;
+
+
+scene.add(wall_window_tex)
 
 wall_1.position.y = 0.85;
 wall_1.castShadow = true
@@ -289,7 +341,19 @@ plane_2.position.z = -2.5;
 plane.receiveShadow = true
 plane_2.receiveShadow = true
 
-scene.add(sphere, cube, torus, plane, plane_2, wall_1, wall_2, wall_3, wall_4, wall_5, wall_6, wall_7)
+
+wall_1.geometry.setAttribute('uv2', new THREE.BufferAttribute(wall_1.geometry.attributes.uv.array, 2))
+wall_2.geometry.setAttribute('uv2', new THREE.BufferAttribute(wall_2.geometry.attributes.uv.array, 2))
+wall_3.geometry.setAttribute('uv2', new THREE.BufferAttribute(wall_3.geometry.attributes.uv.array, 2))
+wall_4.geometry.setAttribute('uv2', new THREE.BufferAttribute(wall_4.geometry.attributes.uv.array, 2))
+wall_5.geometry.setAttribute('uv2', new THREE.BufferAttribute(wall_5.geometry.attributes.uv.array, 2))
+wall_6.geometry.setAttribute('uv2', new THREE.BufferAttribute(wall_6.geometry.attributes.uv.array, 2))
+wall_7.geometry.setAttribute('uv2', new THREE.BufferAttribute(wall_7.geometry.attributes.uv.array, 2))
+plane.geometry.setAttribute('uv2', new THREE.BufferAttribute(plane.geometry.attributes.uv.array, 2))
+plane_2.geometry.setAttribute('uv2', new THREE.BufferAttribute(plane_2.geometry.attributes.uv.array, 2))
+
+
+scene.add(cube, torus, plane, plane_2, wall_1, wall_2, wall_3, wall_4, wall_5, wall_6, wall_7)
 
 
 // const geometry = new THREE.BoxGeometry(100, 100, 100);
@@ -323,11 +387,11 @@ window.addEventListener('resize', () => {
 /**
  * Raycaster
  */
- const raycaster = new THREE.Raycaster()
+const raycaster = new THREE.Raycaster()
 
- /**
-  * Mouse
-  */
+/**
+ * Mouse
+ */
 const mouse = new THREE.Vector2()
 
 window.addEventListener('mousemove', (event) => {
@@ -385,14 +449,12 @@ const tick = () => {
 
     const intersects = raycaster.intersectObjects(objectsToTest)
 
-for(const object of objectsToTest)
-{
-    object.material.color.set('#cccccc')
-}
-for(const intersect of intersects)
-{
-    intersect.object.material.color.set('#0000ff')
-}
+    for (const object of objectsToTest) {
+        object.material.color.set('#cccccc')
+    }
+    for (const intersect of intersects) {
+        intersect.object.material.color.set('#0000ff')
+    }
     //console.log(intersects)
 
 
