@@ -20,8 +20,9 @@ const gltfLoader = new GLTFLoader()
 
 
 gltfLoader.load(
-    '/air2.gltf',
+    '/ds_bridge.glb',
     (gltf) => {
+        console.log('Loaded GLTF is:: ', gltf)
         for (const child of gltf.scene.children) {
             gltf.scene.position.set(0.75, 0.75, 0.75)
             scene.add(child)
