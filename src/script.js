@@ -41,6 +41,11 @@ const scene = new THREE.Scene()
 const cubeTextureLoader = new THREE.CubeTextureLoader()
 
 const environmentMap = cubeTextureLoader.load([
+    '/textures/landscape.jpg',
+    '/textures/landscape.jpg',
+    '/textures/landscape.jpg',
+    '/textures/landscape.jpg',
+    '/textures/landscape.jpg',
     '/textures/landscape.jpg'
 ])
 
