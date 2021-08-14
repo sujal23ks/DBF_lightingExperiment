@@ -3,10 +3,12 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'dat.gui'
 import { RectAreaLightHelper } from 'three/examples/jsm/helpers/RectAreaLightHelper.js'
-import { BoxGeometry, DirectionalLightShadow } from 'three'
+import { BoxGeometry, DirectionalLightShadow, Vector3 } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { CSG } from 'three-csg-ts'
-
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js'
 
 /**
  * Base
@@ -18,17 +20,38 @@ const gui = new dat.GUI()
      */
 const gltfLoader = new GLTFLoader()
 
-// gltfLoader.load(
-//     '/couch.glb',
-//     (gltf) => {
-//         console.log('Loaded GLTF is:: ', gltf)
+gltfLoader.load(
+    '/couch.glb',
+    (gltf) => {
+        console.log('Loaded GLTF is:: ', gltf)
 
-//         for (const child of gltf.scene.children) {
-//             gltf.scene.position.set(0.75, 0.75, 0.75)
-//             scene.add(child)
-//         }
-//     }
-// )
+        // for (const child of gltf.scene.children) {
+        gltf.scene.position.set(3.5,-0.65, -4)
+            scene.add(gltf.scene)
+        // }
+
+
+
+    }
+)
+gltfLoader.load(
+    '/air2.glb',
+    (gltf_2) => {
+       // console.log('Loaded GLTF is:: ', gltf)
+
+        gltf_2.scene.position.set(1.3,-0.65, 0)
+            scene.add(gltf_2.scene)
+
+            gltf_2.scene.traverse( function( node ) {
+
+                if ( node.isMesh ) { node.castShadow = true; }
+        
+            } );
+
+        
+    }
+)
+
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
@@ -42,15 +65,20 @@ const scene = new THREE.Scene()
 const cubeTextureLoader = new THREE.CubeTextureLoader()
 
 const environmentMap = cubeTextureLoader.load([
-    '/textures/landscape.jpg',
-    '/textures/landscape.jpg',
-    '/textures/landscape.jpg',
-    '/textures/landscape.jpg',
-    '/textures/landscape.jpg',
-    '/textures/landscape.jpg'
+    '/textures/negx.jpg',
+    '/textures/negz.jpg',
+    '/textures/posy.jpg',
+    '/textures/negy.jpg',
+    '/textures/posz.jpg',
+    '/textures/posx.jpg'
 ])
 
 scene.background = environmentMap
+
+
+const _visibleEdgeColor = '#ffffff'
+
+
 
 
 /**
@@ -92,7 +120,7 @@ scene.add(hemisphereLight)
 
 // Point light
 const pointLight = new THREE.PointLight(0xff9000, 0.4, 10, 2)
-pointLight.position.set(2, 1.5, 1)
+pointLight.position.set(2, 1.5, -0.5)
 scene.add(pointLight)
 
 const pointLight_2 = new THREE.PointLight(0xff9000, 0.3, 10, 2)
@@ -108,7 +136,7 @@ pointLight_4.position.z = -3
 scene.add(pointLight_4)
 
 const pointLight_5 = pointLight_2.clone()
-pointLight_5.position.z = -5
+pointLight_5.position.z = -6
 scene.add(pointLight_5)
 
 
@@ -122,18 +150,23 @@ rectAreaLight.rotation.set(-Math.PI * 0.5, 0, Math.PI * 0.5)
 scene.add(rectAreaLight)
 
 // Spot light
-const spotLight = new THREE.SpotLight(0x78ff00, 0.5, 10, Math.PI * 0.1, 0.25, 1)
-spotLight.position.set(0, 4, 3)
+const spotLight = new THREE.SpotLight(0xffff00, 0.7, 10, Math.PI * 0.1, 0.25, 1)
+spotLight.position.set(-1, 7, 0)
 scene.add(spotLight)
 
 const spotLight_2 = new THREE.SpotLight(0x78ff00, 0.5, 10, Math.PI * 0.1, 0.25, 1)
-spotLight_2.position.set(5, 4, 3)
 
-//spotLight_2.target = new THREE.Vector2(0, 3, 6)
-scene.add(spotLight_2)
+//spotLight.position.set(5, 4, 3)
 
-// spotLight.target.position.x = 0
-//     //scene.add(spotLight.target)
+//spotLight_2.target.position.x=0;
+//spotLight_2.target.position.y=3;
+//spotLight_2.target.position.y=6;
+
+
+//spotLight_2.target=(0, 3, 6)
+//scene.add(spotLight_2)
+//scene.add(spotLight_2.target)
+
 
 // Helpers
 // const hemisphereLightHelper = new THREE.HemisphereLightHelper(hemisphereLight, 0.2)
@@ -145,11 +178,11 @@ scene.add(spotLight_2)
 // const pointLightHelper = new THREE.PointLightHelper(pointLight_2, 0.2)
 // scene.add(pointLightHelper)
 
-const spotLightHelper = new THREE.SpotLightHelper(spotLight)
-scene.add(spotLightHelper)
-window.requestAnimationFrame(() => {
-    spotLightHelper.update()
-})
+// const spotLightHelper = new THREE.SpotLightHelper(spotLight_2)
+// scene.add(spotLightHelper)
+// window.requestAnimationFrame(() => {
+//     spotLightHelper.update()
+// })
 
 // const rectAreaLightHelper = new RectAreaLightHelper(rectAreaLight)
 // scene.add(rectAreaLightHelper)
@@ -201,8 +234,6 @@ const material_Floor = new THREE.MeshStandardMaterial({ map: colorTexture })
 material_Floor.roughness = 0.5
 material_Floor.aoMap = wall_colao2;
 
-const material_wall = new THREE.MeshStandardMaterial({ map: colorTexture_wall })
-material_Floor.roughness = 0.5
 
 const material = new THREE.MeshStandardMaterial()
 material.map = wall_col;
@@ -284,6 +315,7 @@ scene.add(wall_window_tex)
 
 wall_1.position.y = 0.85;
 wall_1.castShadow = true
+wall_1.receiveShadow=true
 wall_5.castShadow = true
 
 const wall_2 = wall_1.clone();
@@ -426,6 +458,27 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 renderer.shadowMap.enabled = true
     //renderer.physicallyCorrectLights = true
+/**
+ * Post Processing
+ */
+const effectComposer=new EffectComposer(renderer)
+effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+effectComposer.setSize(sizes.width,sizes.height)
+
+const renderPass=new RenderPass(scene,camera)
+effectComposer.addPass(renderPass)
+
+
+const outlinePass = new OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight),scene, camera)
+
+
+outlinePass.visibleEdgeColor=_visibleEdgeColor
+outlinePass.edgeThickness=3
+outlinePass.edgeGlow=0.5
+
+
+effectComposer.addPass(outlinePass);
+
 
 /**
  * Animate
@@ -453,7 +506,9 @@ const tick = () => {
         object.material.color.set('#cccccc')
     }
     for (const intersect of intersects) {
-        intersect.object.material.color.set('#0000ff')
+
+//outlinePass.intersect=intersects
+       intersect.object.material.color.set('#0000ff')
     }
     //console.log(intersects)
 
@@ -462,7 +517,8 @@ const tick = () => {
     controls.update()
 
     // Render
-    renderer.render(scene, camera)
+   // renderer.render(scene, camera)
+   effectComposer.render()
 
     // Call tick again on the next frame
     window.requestAnimationFrame(tick)
