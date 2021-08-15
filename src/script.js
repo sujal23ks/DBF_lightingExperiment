@@ -477,7 +477,7 @@ outlinePass.edgeThickness=3
 outlinePass.edgeGlow=0.5
 
 
-effectComposer.addPass(outlinePass);
+
 
 
 /**
@@ -507,8 +507,9 @@ const tick = () => {
     }
     for (const intersect of intersects) {
 
-//outlinePass.intersect=intersects
-       intersect.object.material.color.set('#0000ff')
+// outlinePass.intersect=intersects
+// effectComposer.addPass(outlinePass);
+      intersect.object.material.color.set('#0000ff')
     }
     //console.log(intersects)
 
