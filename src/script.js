@@ -389,8 +389,8 @@ scene.add(cube, torus, plane, plane_2, wall_1, wall_2, wall_3, wall_4, wall_5, w
 
 
 // const geometry = new THREE.BoxGeometry(100, 100, 100);
-const edges = new THREE.EdgesGeometry(new THREE.BoxGeometry(.23, 3, 5));
-const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 0.8 }));
+// const edges = new THREE.EdgesGeometry(new THREE.BoxGeometry(.23, 3, 5));
+// const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 0.8 }));
 //scene.add(line);
 
 /**
@@ -476,7 +476,7 @@ outlinePass.visibleEdgeColor=_visibleEdgeColor
 outlinePass.edgeThickness=3
 outlinePass.edgeGlow=0.5
 
-
+effectComposer.addPass(outlinePass);
 
 
 
@@ -507,8 +507,10 @@ const tick = () => {
     }
     for (const intersect of intersects) {
 
-// outlinePass.intersect=intersects
-// effectComposer.addPass(outlinePass);
+// outlinePass.selectedObjects=intersect
+// const edges = new THREE.EdgesGeometry(intersect);
+// const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 0.8 }));
+// scene.add(line)
       intersect.object.material.color.set('#0000ff')
     }
     //console.log(intersects)
