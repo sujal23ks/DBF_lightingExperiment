@@ -15,6 +15,8 @@ import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js'
  */
 // Debug
 const gui = new dat.GUI()
+
+let selectedObjects = []
     /**
      * Models
      */
@@ -498,22 +500,31 @@ const tick = () => {
     torus.rotation.x = 0.15 * elapsedTime
 
     raycaster.setFromCamera(mouse, camera)
-    const objectsToTest = [wall_1]
+    const objectsToTest = [wall_1, wall_2, wall_3, wall_4, wall_5, wall_6, wall_7]
 
     const intersects = raycaster.intersectObjects(objectsToTest)
 
-    for (const object of objectsToTest) {
-        object.material.color.set('#cccccc')
-    }
+    // console.log(intersects)
+
+    // for (const object of objectsToTest) {
+    //     object.material.color.set('#cccccc')
+    // }
+
+    selectedObjects = []
+
     for (const intersect of intersects) {
 
-// outlinePass.selectedObjects=intersect
-// const edges = new THREE.EdgesGeometry(intersect);
-// const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 0.8 }));
-// scene.add(line)
-      intersect.object.material.color.set('#0000ff')
+        if(intersect.object) selectedObjects.push(intersect.object)
+        // const edges = new THREE.EdgesGeometry(intersect);
+        // const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 0.8 }));
+        // scene.add(line)
+    //   intersect.object.material.color.set('#0000ff')
     }
     //console.log(intersects)
+
+    outlinePass.selectedObjects = selectedObjects
+
+    // console.log(outlinePass.selectedObjects)
 
 
     // Update controls
