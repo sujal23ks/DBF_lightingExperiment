@@ -28,9 +28,9 @@ gltfLoader.load(
         console.log('Loaded GLTF is:: ', gltf)
 
         // for (const child of gltf.scene.children) {
-        gltf.scene.position.set(3.5,-0.65, -4)
-            scene.add(gltf.scene)
-        // }
+        gltf.scene.position.set(3.5, -0.65, -4)
+        scene.add(gltf.scene)
+            // }
 
 
 
@@ -39,18 +39,18 @@ gltfLoader.load(
 gltfLoader.load(
     '/air2.glb',
     (gltf_2) => {
-       // console.log('Loaded GLTF is:: ', gltf)
+        // console.log('Loaded GLTF is:: ', gltf)
 
-        gltf_2.scene.position.set(1.3,-0.65, 0)
-            scene.add(gltf_2.scene)
+        gltf_2.scene.position.set(1.3, -0.65, 0)
+        scene.add(gltf_2.scene)
 
-            gltf_2.scene.traverse( function( node ) {
+        gltf_2.scene.traverse(function(node) {
 
-                if ( node.isMesh ) { node.castShadow = true; }
-        
-            } );
+            if (node.isMesh) { node.castShadow = true; }
 
-        
+        });
+
+
     }
 )
 
@@ -79,8 +79,6 @@ scene.background = environmentMap
 
 
 const _visibleEdgeColor = '#ffffff'
-
-
 
 
 /**
@@ -317,7 +315,7 @@ scene.add(wall_window_tex)
 
 wall_1.position.y = 0.85;
 wall_1.castShadow = true
-wall_1.receiveShadow=true
+wall_1.receiveShadow = true
 wall_5.castShadow = true
 
 const wall_2 = wall_1.clone();
@@ -460,23 +458,23 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 renderer.shadowMap.enabled = true
     //renderer.physicallyCorrectLights = true
-/**
- * Post Processing
- */
-const effectComposer=new EffectComposer(renderer)
+    /**
+     * Post Processing
+     */
+const effectComposer = new EffectComposer(renderer)
 effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-effectComposer.setSize(sizes.width,sizes.height)
+effectComposer.setSize(sizes.width, sizes.height)
 
-const renderPass=new RenderPass(scene,camera)
+const renderPass = new RenderPass(scene, camera)
 effectComposer.addPass(renderPass)
 
 
-const outlinePass = new OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight),scene, camera)
+const outlinePass = new OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), scene, camera)
 
 
-outlinePass.visibleEdgeColor=_visibleEdgeColor
-outlinePass.edgeThickness=3
-outlinePass.edgeGlow=0.5
+outlinePass.visibleEdgeColor = _visibleEdgeColor
+outlinePass.edgeThickness = 3
+outlinePass.edgeGlow = 0.5
 
 effectComposer.addPass(outlinePass);
 
@@ -514,15 +512,15 @@ const tick = () => {
 
     for (const intersect of intersects) {
 
-        if(intersect.object) selectedObjects.push(intersect.object)
-        // const edges = new THREE.EdgesGeometry(intersect);
-        // const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 0.8 }));
-        // scene.add(line)
-    //   intersect.object.material.color.set('#0000ff')
+        if (intersect.object) selectedObjects.push(intersect.object)
+            // const edges = new THREE.EdgesGeometry(intersect);
+            // const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 0.8 }));
+            // scene.add(line)
+            //   intersect.object.material.color.set('#0000ff')
     }
     //console.log(intersects)
 
-    outlinePass.selectedObjects = selectedObjects
+    //outlinePass.selectedObjects = selectedObjects
 
     // console.log(outlinePass.selectedObjects)
 
@@ -531,8 +529,8 @@ const tick = () => {
     controls.update()
 
     // Render
-   // renderer.render(scene, camera)
-   effectComposer.render()
+    // renderer.render(scene, camera)
+    effectComposer.render()
 
     // Call tick again on the next frame
     window.requestAnimationFrame(tick)
