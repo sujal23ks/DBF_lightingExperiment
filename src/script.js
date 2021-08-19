@@ -9,6 +9,7 @@ import { CSG } from 'three-csg-ts'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js'
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
 
 /**
  * Base
@@ -22,6 +23,8 @@ let selectedObjects = []
      */
 const gltfLoader = new GLTFLoader()
 
+
+
 gltfLoader.load(
     '/couch.glb',
     (gltf) => {
@@ -31,7 +34,6 @@ gltfLoader.load(
         gltf.scene.position.set(3.5, -0.65, -4)
         scene.add(gltf.scene)
             // }
-
 
 
     }
@@ -53,6 +55,68 @@ gltfLoader.load(
 
     }
 )
+
+const fbxLoader = new FBXLoader()
+let animationGroup = new THREE.AnimationObjectGroup(),
+    idleAnimationInterval
+
+// fbxLoader.load(
+//     '/fbx/character.fbx',
+//     (fbx) => {
+//         fbx.scale.setScalar(0.01)
+//         fbx.traverse(c => {
+//             c.castShadow = true
+//         })
+//         fbx.position.set(5, -0.65, 0)
+
+
+//         const anim = new FBXLoader()
+//         anim.load('/fbx/Walking.fbx',
+//             (anim) => {
+//                 const mixer = new THREE.AnimationMixer(fbx)
+//                 const idle = mixer.clipAction(anim.animations[0])
+//                 idle.play()
+//             })
+//         scene.add(fbx)
+//     })
+
+
+fbxLoader.load(
+    '/fbx/Walking_new.fbx',
+    // '/santa.fbx',
+
+    (fbx) => {
+        fbx.scale.setScalar(0.01)
+        fbx.traverse(c => {
+            c.castShadow = true
+        })
+
+        animationGroup.add(fbx)
+
+        fbx.animations[0].duration = 30
+        console.log('fbx:: ', fbx.animations[0])
+
+        const mixer = new THREE.AnimationMixer(animationGroup)
+        const idle = mixer.clipAction(fbx.animations[0])
+            // console.log('Idle animation is:: ', idle)
+
+        idle.play()
+        idle.setLoop(THREE.LoopRepeat)
+            //idle.play().reset()
+        idleAnimationInterval = setInterval(() => {
+            console.log('Interval runnign.')
+            mixer.update(0.01)
+        }, 30)
+
+        fbx.position.set(5, -0.65, -3)
+
+        console.log('fbx loader:', fbx)
+
+        scene.add(fbx)
+    }
+)
+
+
 
 
 // Canvas
@@ -77,14 +141,11 @@ const environmentMap = cubeTextureLoader.load([
 
 scene.background = environmentMap
 
-
 const _visibleEdgeColor = '#ffffff'
-
-
-/**
- * Lights
- */
-// Ambient light
+    /**
+     * Lights
+     */
+    // Ambient light
 const ambientLight = new THREE.AmbientLight()
 ambientLight.color = new THREE.Color(0xffffff)
 ambientLight.intensity = 0.5
@@ -138,7 +199,6 @@ scene.add(pointLight_4)
 const pointLight_5 = pointLight_2.clone()
 pointLight_5.position.z = -6
 scene.add(pointLight_5)
-
 
 // Rect area light
 const rectAreaLight = new THREE.RectAreaLight(0xffffff, 0.074, 10, 10) //FFEC00,0x4e00ff
@@ -244,9 +304,9 @@ material.roughness = 0.4
 
 const material_glass = new THREE.MeshStandardMaterial()
 material_glass.color.set(0xacf9e5)
-material_glass.roughness = 0.4
+material_glass.roughness = 0.1
 material_glass.transparent = true
-material_glass.opacity = 0.3
+material_glass.opacity = 0.5
 
 
 // //TO CREATE Cartoonish Style
@@ -309,7 +369,6 @@ wall_5.position.x = 7.4;
 wall_window_tex.position.y = 0.85;
 wall_window_tex.position.z = -2.5;
 wall_window_tex.position.x = 7.4;
-
 
 scene.add(wall_window_tex)
 
@@ -386,7 +445,6 @@ plane_2.geometry.setAttribute('uv2', new THREE.BufferAttribute(plane_2.geometry.
 
 
 scene.add(cube, torus, plane, plane_2, wall_1, wall_2, wall_3, wall_4, wall_5, wall_6, wall_7)
-
 
 // const geometry = new THREE.BoxGeometry(100, 100, 100);
 // const edges = new THREE.EdgesGeometry(new THREE.BoxGeometry(.23, 3, 5));
@@ -478,6 +536,26 @@ outlinePass.edgeGlow = 0.5
 
 effectComposer.addPass(outlinePass);
 
+/**
+ * Animations FBX
+ */
+
+
+
+
+
+//  let mixer: THREE.AnimationMixer
+//  let modelReady = false
+//  const animationActions: THREE.AnimationAction[] = []
+//  let activeAction: THREE.AnimationAction
+//  let lastAction: THREE.AnimationAction
+//  const fbxLoader: FBXLoader = new FBXLoader()
+
+
+
+
+
+
 
 
 /**
@@ -496,6 +574,12 @@ const tick = () => {
     sphere.rotation.x = 0.15 * elapsedTime
     cube.rotation.x = 0.15 * elapsedTime
     torus.rotation.x = 0.15 * elapsedTime
+
+
+    // fbx.position.x = 0.1 * elapsedTime
+
+
+
 
     raycaster.setFromCamera(mouse, camera)
     const objectsToTest = [wall_1, wall_2, wall_3, wall_4, wall_5, wall_6, wall_7]
