@@ -11,6 +11,9 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
 
+// Scene
+const scene = new THREE.Scene()
+
 /**
  * Base
  */
@@ -60,27 +63,6 @@ const fbxLoader = new FBXLoader()
 let animationGroup = new THREE.AnimationObjectGroup(),
     idleAnimationInterval
 
-// fbxLoader.load(
-//     '/fbx/character.fbx',
-//     (fbx) => {
-//         fbx.scale.setScalar(0.01)
-//         fbx.traverse(c => {
-//             c.castShadow = true
-//         })
-//         fbx.position.set(5, -0.65, 0)
-
-
-//         const anim = new FBXLoader()
-//         anim.load('/fbx/Walking.fbx',
-//             (anim) => {
-//                 const mixer = new THREE.AnimationMixer(fbx)
-//                 const idle = mixer.clipAction(anim.animations[0])
-//                 idle.play()
-//             })
-//         scene.add(fbx)
-//     })
-
-
 fbxLoader.load(
     '/fbx/Walking_new.fbx',
     // '/santa.fbx',
@@ -93,7 +75,7 @@ fbxLoader.load(
 
         animationGroup.add(fbx)
 
-        fbx.animations[0].duration = 30
+        fbx.animations[0].duration = 60
         console.log('fbx:: ', fbx.animations[0])
 
         const mixer = new THREE.AnimationMixer(animationGroup)
@@ -101,20 +83,155 @@ fbxLoader.load(
             // console.log('Idle animation is:: ', idle)
 
         idle.play()
-        idle.setLoop(THREE.LoopRepeat)
-            //idle.play().reset()
+            //idle.setLoop(THREE.LoopRepeat)
+        idle.play().reset()
+
+        const walkingLine = [
+            new THREE.Vector3(5, 0, 0),
+            new THREE.Vector3(5, 0, -5),
+
+        ]
+
+        const distances = getDistances(walkingLine)
+        const cumulativeDistances = getCumulative(distances)
+
+        const range = [0, cumulativeDistances[cumulativeDistances.length - 1]]
+        const pathLength = range[1] - range[0]
+
+        const myPath = {
+            polygon: walkingLine,
+            distances,
+            cumulativeDistances,
+            range,
+            pathLength
+        }
+
+        let walkingAnimT = 0
         idleAnimationInterval = setInterval(() => {
+
             console.log('Interval runnign.')
-            mixer.update(0.01)
+            mixer.update(0.02)
+            walkingAnimT += 0.001
+
+            walkingAnimT = walkingAnimT > 1 ? 0 : walkingAnimT
+
+            const position = EvaluatePointOnPolyline(myPath, walkingAnimT)
+
+            fbx.position.set(position.x, -0.65, position.z)
+
         }, 30)
 
-        fbx.position.set(5, -0.65, -3)
+
+        // fbx.position.set(5, -0.65, -3)
 
         console.log('fbx loader:', fbx)
-
         scene.add(fbx)
     }
 )
+
+function getCumulative(numbers) {
+
+    const cumulative = []
+    let increment = 0
+
+    cumulative.push(0)
+
+    for (let i = 0; i < numbers.length; i++) {
+        increment += numbers[i]
+        cumulative.push(increment)
+    }
+
+    return cumulative;
+}
+
+function EvaluatePointOnPolyline(path, t) {
+
+    const { polygon, pathLength, cumulativeDistances, range } = path
+
+    const length = pathLength * t
+
+    for (let i = 0; i < cumulativeDistances.length - 1; i++) {
+
+        let line = [],
+            factor
+
+        if (length > cumulativeDistances[i + 1]) { continue; }
+
+        line.push(polygon[i], polygon[i + 1])
+
+        factor = (length - cumulativeDistances[i]) / Distance(polygon[i], polygon[i + 1])
+
+        return evaluatePointOnLine(line, factor)
+    }
+
+    return null;
+}
+
+function evaluatePointOnLine(line, t) {
+
+    const v1 = line[0].clone().multiplyScalar(t)
+    const v2 = line[1].clone().multiplyScalar(1 - t)
+
+    return v1.add(v2)
+}
+
+
+function getDistances(polygon) {
+
+    const distances = []
+
+    for (let i = 0; i < polygon.length - 1; i++) {
+        const distance = Distance(polygon[i], polygon[i + 1]);
+        distances.push(distance)
+
+    }
+    return distances;
+}
+
+function Distance(p1, p2) {
+
+    const nx = p2.x - p1.x
+    const ny = p2.y - p1.y
+    const nz = p2.z - p1.z
+    return Math.sqrt(nx * nx + ny * ny + nz * nz)
+
+}
+
+// function fbxmove(fbx) {
+
+//     // const points = []
+//     // const line_material = new THREE.MeshStandardMaterial()
+//     // line_material.color.set(0x000000)
+//     // points.push(new THREE.Vector3(5, -0.65, -3))
+
+//     // points.push(new THREE.Vector3(0, 0, 0))
+
+//     // const geometry = new THREE.BufferGeometry().setFromPoints(points)
+
+//     // var newline = new THREE.Line(geometry, line_material)
+
+
+
+
+//     console.log('GEometry LENGTH:', newline)
+
+
+// }
+
+
+
+/**
+ * 
+ */
+
+
+
+// const fbxMove=setInterval(() => {
+//     fbx.position.z=z;
+// z+=10
+// }, 100);
+
+
 
 
 
@@ -122,8 +239,7 @@ fbxLoader.load(
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
 
-// Scene
-const scene = new THREE.Scene()
+
 
 /**
  * Environment map
@@ -618,6 +734,9 @@ const tick = () => {
 
     // Call tick again on the next frame
     window.requestAnimationFrame(tick)
+
+
+
 }
 
 tick()
