@@ -116,16 +116,14 @@ fbxLoader.load(
             mixer.update(0.02)
             walkingAnimT += 0.006
 
-            walkingAnimT = walkingAnimT > 1 ? 0 : walkingAnimT
+            // walkingAnimT = walkingAnimT > 1 ? 0 : walkingAnimT
 
             const position = EvaluatePointOnPolyline(myPath, walkingAnimT)
 
             fbx.position.set(position.x, -0.65, position.z)
 
+
         }, 30)
-
-
-        // fbx.position.set(5, -0.65, -3)
 
         console.log('fbx loader:', fbx)
         scene.add(fbx)
@@ -198,6 +196,13 @@ function Distance(p1, p2) {
     return Math.sqrt(nx * nx + ny * ny + nz * nz)
 
 }
+
+
+
+
+
+
+
 
 
 
