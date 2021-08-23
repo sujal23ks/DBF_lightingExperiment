@@ -75,7 +75,7 @@ fbxLoader.load(
 
         animationGroup.add(fbx)
 
-        fbx.animations[0].duration = 60
+        //fbx.animations[0].duration = 60
         console.log('fbx:: ', fbx.animations[0])
 
         const mixer = new THREE.AnimationMixer(animationGroup)
@@ -84,11 +84,14 @@ fbxLoader.load(
 
         idle.play()
             //idle.setLoop(THREE.LoopRepeat)
-        idle.play().reset()
+            //idle.play().reset()
 
         const walkingLine = [
             new THREE.Vector3(5, 0, 0),
-            new THREE.Vector3(5, 0, -5),
+            new THREE.Vector3(5, 0, -5)
+            // new THREE.Vector3(5.25, 0, -5),
+            // new THREE.Vector3(5.25, 0, 0),
+            // new THREE.Vector3(5, 0, 0)
 
         ]
 
@@ -111,7 +114,7 @@ fbxLoader.load(
 
             console.log('Interval runnign.')
             mixer.update(0.02)
-            walkingAnimT += 0.001
+            walkingAnimT += 0.006
 
             walkingAnimT = walkingAnimT > 1 ? 0 : walkingAnimT
 
@@ -163,7 +166,6 @@ function EvaluatePointOnPolyline(path, t) {
 
         return evaluatePointOnLine(line, factor)
     }
-
     return null;
 }
 
@@ -196,6 +198,8 @@ function Distance(p1, p2) {
     return Math.sqrt(nx * nx + ny * ny + nz * nz)
 
 }
+
+
 
 // function fbxmove(fbx) {
 
