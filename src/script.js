@@ -64,138 +64,166 @@ let animationGroup = new THREE.AnimationObjectGroup(),
     idleAnimationInterval
 
 fbxLoader.load(
-    '/fbx/Walking_new.fbx',
+    '/fbx/Looking Around_lady.fbx',
     // '/santa.fbx',
-
     (fbx) => {
         fbx.scale.setScalar(0.01)
         fbx.traverse(c => {
             c.castShadow = true
         })
-
         animationGroup.add(fbx)
-
-        //fbx.animations[0].duration = 60
+            //fbx.animations[0].duration = 30
         console.log('fbx:: ', fbx.animations[0])
-
         const mixer = new THREE.AnimationMixer(animationGroup)
         const idle = mixer.clipAction(fbx.animations[0])
             // console.log('Idle animation is:: ', idle)
-
         idle.play()
-            //idle.setLoop(THREE.LoopRepeat)
+        idle.setLoop(THREE.LoopRepeat)
             //idle.play().reset()
-
-        const walkingLine = [
-            new THREE.Vector3(5, 0, 0),
-            new THREE.Vector3(5, 0, -5)
-            // new THREE.Vector3(5.25, 0, -5),
-            // new THREE.Vector3(5.25, 0, 0),
-            // new THREE.Vector3(5, 0, 0)
-
-        ]
-
-        const distances = getDistances(walkingLine)
-        const cumulativeDistances = getCumulative(distances)
-
-        const range = [0, cumulativeDistances[cumulativeDistances.length - 1]]
-        const pathLength = range[1] - range[0]
-
-        const myPath = {
-            polygon: walkingLine,
-            distances,
-            cumulativeDistances,
-            range,
-            pathLength
-        }
-
-        let walkingAnimT = 0
         idleAnimationInterval = setInterval(() => {
-
             console.log('Interval runnign.')
-            mixer.update(0.02)
-            walkingAnimT += 0.006
-
-            // walkingAnimT = walkingAnimT > 1 ? 0 : walkingAnimT
-
-            const position = EvaluatePointOnPolyline(myPath, walkingAnimT)
-
-            fbx.position.set(position.x, -0.65, position.z)
-
-
+            mixer.update(0.01)
         }, 30)
-
+        fbx.position.set(5, -0.65, -3)
         console.log('fbx loader:', fbx)
         scene.add(fbx)
     }
 )
 
-function getCumulative(numbers) {
-
-    const cumulative = []
-    let increment = 0
-
-    cumulative.push(0)
-
-    for (let i = 0; i < numbers.length; i++) {
-        increment += numbers[i]
-        cumulative.push(increment)
-    }
-
-    return cumulative;
-}
-
-function EvaluatePointOnPolyline(path, t) {
-
-    const { polygon, pathLength, cumulativeDistances, range } = path
-
-    const length = pathLength * t
-
-    for (let i = 0; i < cumulativeDistances.length - 1; i++) {
-
-        let line = [],
-            factor
-
-        if (length > cumulativeDistances[i + 1]) { continue; }
-
-        line.push(polygon[i], polygon[i + 1])
-
-        factor = (length - cumulativeDistances[i]) / Distance(polygon[i], polygon[i + 1])
-
-        return evaluatePointOnLine(line, factor)
-    }
-    return null;
-}
-
-function evaluatePointOnLine(line, t) {
-
-    const v1 = line[0].clone().multiplyScalar(t)
-    const v2 = line[1].clone().multiplyScalar(1 - t)
-
-    return v1.add(v2)
-}
 
 
-function getDistances(polygon) {
+// fbxLoader.load(
+//     '/fbx/Walking_new.fbx',
+//     // '/santa.fbx',
 
-    const distances = []
+//     (fbx) => {
+//         fbx.scale.setScalar(0.01)
+//         fbx.traverse(c => {
+//             c.castShadow = true
+//         })
 
-    for (let i = 0; i < polygon.length - 1; i++) {
-        const distance = Distance(polygon[i], polygon[i + 1]);
-        distances.push(distance)
+//         animationGroup.add(fbx)
 
-    }
-    return distances;
-}
+//         //fbx.animations[0].duration = 60
+//         console.log('fbx:: ', fbx.animations[0])
 
-function Distance(p1, p2) {
+//         const mixer = new THREE.AnimationMixer(animationGroup)
+//         const idle = mixer.clipAction(fbx.animations[0])
+//             // console.log('Idle animation is:: ', idle)
 
-    const nx = p2.x - p1.x
-    const ny = p2.y - p1.y
-    const nz = p2.z - p1.z
-    return Math.sqrt(nx * nx + ny * ny + nz * nz)
+//         idle.play()
+//             //idle.setLoop(THREE.LoopRepeat)
+//             //idle.play().reset()
 
-}
+//         const walkingLine = [
+//             new THREE.Vector3(5, 0, 0),
+//             //   new THREE.Vector3(5, 0, -5)
+//             // new THREE.Vector3(5.25, 0, -5),
+//             // new THREE.Vector3(5.25, 0, 0),
+//             // new THREE.Vector3(5, 0, 0)
+
+//         ]
+
+//         const distances = getDistances(walkingLine)
+//         const cumulativeDistances = getCumulative(distances)
+
+//         const range = [0, cumulativeDistances[cumulativeDistances.length - 1]]
+//         const pathLength = range[1] - range[0]
+
+//         const myPath = {
+//             polygon: walkingLine,
+//             distances,
+//             cumulativeDistances,
+//             range,
+//             pathLength
+//         }
+
+//         let walkingAnimT = 0
+//         idleAnimationInterval = setInterval(() => {
+
+//             console.log('Interval runnign.')
+//             mixer.update(0.02)
+
+//             // walkingAnimT = walkingAnimT > 1 ? 0 : walkingAnimT
+
+//             // const position = EvaluatePointOnPolyline(myPath, walkingAnimT)
+
+//             fbx.position.set(5, -0.65, 5)
+
+
+//         }, 30)
+
+//         console.log('fbx loader:', fbx)
+//         scene.add(fbx)
+//     }
+// )
+
+// function getCumulative(numbers) {
+
+//     const cumulative = []
+//     let increment = 0
+
+//     cumulative.push(0)
+
+//     for (let i = 0; i < numbers.length; i++) {
+//         increment += numbers[i]
+//         cumulative.push(increment)
+//     }
+
+//     return cumulative;
+// }
+
+// function EvaluatePointOnPolyline(path, t) {
+
+//     const { polygon, pathLength, cumulativeDistances, range } = path
+
+//     const length = pathLength * t
+
+//     for (let i = 0; i < cumulativeDistances.length - 1; i++) {
+
+//         let line = [],
+//             factor
+
+//         if (length > cumulativeDistances[i + 1]) { continue; }
+
+//         line.push(polygon[i], polygon[i + 1])
+
+//         factor = (length - cumulativeDistances[i]) / Distance(polygon[i], polygon[i + 1])
+
+//         return evaluatePointOnLine(line, factor)
+//     }
+//     return null;
+// }
+
+// function evaluatePointOnLine(line, t) {
+
+//     const v1 = line[0].clone().multiplyScalar(t)
+//     const v2 = line[1].clone().multiplyScalar(1 - t)
+
+//     return v1.add(v2)
+// }
+
+
+// function getDistances(polygon) {
+
+//     const distances = []
+
+//     for (let i = 0; i < polygon.length - 1; i++) {
+//         const distance = Distance(polygon[i], polygon[i + 1]);
+//         distances.push(distance)
+
+//     }
+//     return distances;
+// }
+
+// function Distance(p1, p2) {
+
+//     const nx = p2.x - p1.x
+//     const ny = p2.y - p1.y
+//     const nz = p2.z - p1.z
+//     return Math.sqrt(nx * nx + ny * ny + nz * nz)
+
+// }
 
 
 
