@@ -61,6 +61,8 @@ const fbxLoader = new FBXLoader()
 let animationGroup = new THREE.AnimationObjectGroup(),
     idleAnimationInterval
 
+let animationGroup2 = new THREE.AnimationObjectGroup()
+
 // fbxLoader.load(
 //     '/fbx/asian.fbx',
 //     // '/santa.fbx',
@@ -87,6 +89,9 @@ let animationGroup = new THREE.AnimationObjectGroup(),
 //         scene.add(fbx)
 //     }
 // )
+
+
+const fbxLoader_2 = new FBXLoader()
 
 
 
@@ -146,16 +151,25 @@ fbxLoader.load(
             // walkingAnimT = walkingAnimT > 1 ? 0 : walkingAnimT
 
             const position = EvaluatePointOnPolyline(myPath, walkingAnimT)
+            if (position.z <= -1) {
+                fbx.position.set(position.x, -0.65, position.z)
+            } else {
+                clearInterval(idleAnimationInterval)
 
-            fbx.position.set(position.x, -0.65, position.z)
-
+            }
 
             // fbx.position.set(5, -0.65, -5)
 
         }, 30)
 
+
+        // setTimeout(() => {
+        //     clearInterval(idleAnimationInterval)
+        // }, 600)
+
         console.log('fbx loader:', fbx)
         scene.add(fbx)
+        scene.add(fbx2)
     }
 )
 
