@@ -91,7 +91,7 @@ let animationGroup2 = new THREE.AnimationObjectGroup()
 // )
 
 
-const fbxLoader_2 = new FBXLoader()
+
 
 
 
@@ -155,23 +155,54 @@ fbxLoader.load(
                 fbx.position.set(position.x, -0.65, position.z)
             } else {
                 clearInterval(idleAnimationInterval)
-
+                console.log('Interval-2 running')
+                setAnimation()
             }
-
             // fbx.position.set(5, -0.65, -5)
-
         }, 30)
-
-
-        // setTimeout(() => {
-        //     clearInterval(idleAnimationInterval)
-        // }, 600)
 
         console.log('fbx loader:', fbx)
         scene.add(fbx)
-        scene.add(fbx2)
     }
 )
+
+function setAnimation() {
+
+    const fbxLoader_2 = new FBXLoader()
+
+    fbxLoader_2.load(
+        '/fbx/Look.fbx',
+        // '/santa.fbx',
+        (fbx) => {
+            fbx.scale.setScalar(0.01)
+            fbx.traverse(c => {
+                c.castShadow = true
+            })
+            animationGroup.add(fbx)
+                //fbx.animations[0].duration = 30
+            console.log('fbx:: ', fbx.animations[0])
+            const mixer = new THREE.AnimationMixer(animationGroup)
+            const idle = mixer.clipAction(fbx.animations[0])
+                // console.log('Idle animation is:: ', idle)
+            idle.play()
+            idle.setLoop(THREE.LoopRepeat)
+                //idle.play().reset()
+            idleAnimationInterval = setInterval(() => {
+                    console.log('Interval runnign.')
+                    mixer.update(0.01)
+                }, 30)
+                //fbx.position.set(5, -0.65, -3)
+            console.log('fbx loader:', fbx)
+
+        }
+    )
+
+}
+
+
+
+
+
 
 function getCumulative(numbers) {
 
